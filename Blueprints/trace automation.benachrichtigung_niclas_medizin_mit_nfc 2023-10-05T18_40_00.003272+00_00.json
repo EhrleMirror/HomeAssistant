@@ -1,0 +1,337 @@
+{
+  "trace": {
+    "last_step": "action/0/choose/1/conditions/1",
+    "run_id": "44d7bb257c44538f5e4399483b7de2e7",
+    "state": "stopped",
+    "script_execution": "finished",
+    "timestamp": {
+      "start": "2023-10-05T18:40:00.003272+00:00",
+      "finish": "2023-10-05T18:40:00.007583+00:00"
+    },
+    "domain": "automation",
+    "item_id": "1696531163145",
+    "trigger": "time set in input_datetime.elvanse",
+    "trace": {
+      "trigger/0": [
+        {
+          "path": "trigger/0",
+          "timestamp": "2023-10-05T18:40:00.003321+00:00",
+          "changed_variables": {
+            "this": {
+              "entity_id": "automation.benachrichtigung_niclas_medizin_mit_nfc",
+              "state": "on",
+              "attributes": {
+                "id": "1696531163145",
+                "last_triggered": "2023-10-05T18:39:29.474499+00:00",
+                "mode": "restart",
+                "current": 0,
+                "friendly_name": "Benachrichtigung - Niclas Medizin mit NFC"
+              },
+              "last_changed": "2023-10-05T18:39:23.852321+00:00",
+              "last_updated": "2023-10-05T18:39:29.476640+00:00",
+              "context": {
+                "id": "01HC0J6G628ZVWYM57Z0411Z6E",
+                "parent_id": "01HC0J6G613VVAR746SDPDBYJE",
+                "user_id": null
+              }
+            },
+            "trigger": {
+              "id": "time_trigger",
+              "idx": "0",
+              "alias": null,
+              "platform": "time",
+              "now": "2023-10-05T20:40:00+02:00",
+              "description": "time set in input_datetime.elvanse",
+              "entity_id": "input_datetime.elvanse"
+            }
+          }
+        }
+      ],
+      "action/0": [
+        {
+          "path": "action/0",
+          "timestamp": "2023-10-05T18:40:00.005586+00:00",
+          "changed_variables": {
+            "context": {
+              "id": "01HC0J7E03N08EG95V7GG5JV57",
+              "parent_id": null,
+              "user_id": null
+            }
+          }
+        }
+      ],
+      "action/0/choose/0": [
+        {
+          "path": "action/0/choose/0",
+          "timestamp": "2023-10-05T18:40:00.005634+00:00",
+          "result": {
+            "result": false
+          }
+        }
+      ],
+      "action/0/choose/0/conditions/0": [
+        {
+          "path": "action/0/choose/0/conditions/0",
+          "timestamp": "2023-10-05T18:40:00.005648+00:00",
+          "result": {
+            "result": false
+          }
+        }
+      ],
+      "action/0/choose/1": [
+        {
+          "path": "action/0/choose/1",
+          "timestamp": "2023-10-05T18:40:00.005675+00:00",
+          "result": {
+            "result": null
+          }
+        }
+      ],
+      "action/0/choose/1/conditions/0": [
+        {
+          "path": "action/0/choose/1/conditions/0",
+          "timestamp": "2023-10-05T18:40:00.005685+00:00",
+          "result": {
+            "result": true
+          }
+        }
+      ],
+      "action/0/choose/1/conditions/1": [
+        {
+          "path": "action/0/choose/1/conditions/1",
+          "timestamp": "2023-10-05T18:40:00.005695+00:00",
+          "error": "In 'template' condition: UndefinedError: 'input_datetime' is undefined"
+        }
+      ]
+    },
+    "config": {
+      "trigger": [
+        {
+          "platform": "time",
+          "at": "input_datetime.elvanse",
+          "id": "time_trigger"
+        },
+        {
+          "platform": "tag",
+          "tag_id": "ee1aefeb-2428-4243-b8cb-a07f767c1a92",
+          "id": "trigger_nfc"
+        }
+      ],
+      "mode": "restart",
+      "action": [
+        {
+          "alias": "Choose depending on trigger",
+          "choose": [
+            {
+              "conditions": [
+                {
+                  "condition": "trigger",
+                  "id": [
+                    "trigger_nfc"
+                  ]
+                }
+              ],
+              "sequence": [
+                {
+                  "alias": "set input_datetime to tomorrow",
+                  "service": "input_datetime.set_datetime",
+                  "data": {
+                    "date": "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
+                  },
+                  "target": {
+                    "entity_id": "input_datetime.elvanse"
+                  }
+                }
+              ]
+            },
+            {
+              "conditions": [
+                {
+                  "condition": "trigger",
+                  "id": [
+                    "time_trigger"
+                  ]
+                },
+                {
+                  "condition": "template",
+                  "value_template": "{{ as_timestamp(now()) > as_timestamp(states(input_datetime))}}"
+                }
+              ],
+              "sequence": [
+                {
+                  "repeat": {
+                    "while": [
+                      {
+                        "condition": "template",
+                        "value_template": "{{ now().timestamp() > state_attr(input_datetime, 'timestamp') }}"
+                      }
+                    ],
+                    "sequence": [
+                      {
+                        "service": "logbook.log",
+                        "data": {
+                          "name": "Medication reminder!",
+                          "message": "Reminder sent",
+                          "entity_id": "input_datetime.elvanse"
+                        }
+                      },
+                      {
+                        "choose": [
+                          {
+                            "conditions": "{{ true }}",
+                            "sequence": []
+                          }
+                        ]
+                      },
+                      {
+                        "device_id": "7aeb40e70e4cc9ccb5a5585f73b0eaab",
+                        "domain": "mobile_app",
+                        "type": "notify",
+                        "title": "Medication reminder!",
+                        "message": "It's time to take your medication",
+                        "data": {
+                          "actions": [
+                            {
+                              "title": "Genommen",
+                              "action": "taken"
+                            },
+                            {
+                              "title": "Später",
+                              "action": "later"
+                            },
+                            {
+                              "title": "Überspringen",
+                              "action": "skip"
+                            }
+                          ],
+                          "tag": "input_datetime.elvanse"
+                        }
+                      },
+                      {
+                        "wait_for_trigger": {
+                          "platform": "event",
+                          "event_type": "mobile_app_notification_action",
+                          "event_data": {
+                            "tag": "input_datetime.elvanse"
+                          }
+                        },
+                        "timeout": {
+                          "minutes": 5
+                        }
+                      },
+                      {
+                        "choose": [
+                          {
+                            "conditions": "{{ wait.trigger and wait.trigger.event.data.action == 'taken' }}",
+                            "sequence": [
+                              {
+                                "service": "input_datetime.set_datetime",
+                                "data": {
+                                  "date": "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
+                                },
+                                "target": {
+                                  "entity_id": "input_datetime.elvanse"
+                                }
+                              },
+                              {
+                                "service": "logbook.log",
+                                "data": {
+                                  "name": "Medication reminder!",
+                                  "message": "Medication taken",
+                                  "entity_id": "input_datetime.elvanse"
+                                },
+                                "alias": "set input_datetime to tomorrow"
+                              }
+                            ]
+                          },
+                          {
+                            "conditions": "{{ wait.trigger and wait.trigger.event.data.action == 'later' }}",
+                            "sequence": []
+                          },
+                          {
+                            "conditions": "{{ wait.trigger and wait.trigger.event.data.action == 'skip' }}",
+                            "sequence": [
+                              {
+                                "service": "input_datetime.set_datetime",
+                                "data": {
+                                  "date": "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
+                                },
+                                "target": {
+                                  "entity_id": "input_datetime.elvanse"
+                                }
+                              },
+                              {
+                                "service": "logbook.log",
+                                "data": {
+                                  "name": "Medication reminder!",
+                                  "message": "Reminder skipped",
+                                  "entity_id": "input_datetime.elvanse"
+                                }
+                              }
+                            ]
+                          }
+                        ],
+                        "default": [
+                          {
+                            "device_id": "7aeb40e70e4cc9ccb5a5585f73b0eaab",
+                            "domain": "mobile_app",
+                            "type": "notify",
+                            "message": "clear_notification",
+                            "data": {
+                              "tag": "input_datetime.elvanse"
+                            }
+                          },
+                          {
+                            "service": "logbook.log",
+                            "data": {
+                              "name": "Medication reminder!",
+                              "message": "No answer time out",
+                              "entity_id": "input_datetime.elvanse"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "id": "1696531163145",
+      "alias": "Benachrichtigung - Niclas Medizin mit NFC",
+      "description": ""
+    },
+    "blueprint_inputs": {
+      "id": "1696531163145",
+      "alias": "Benachrichtigung - Niclas Medizin mit NFC",
+      "description": "",
+      "use_blueprint": {
+        "path": "ehrlemirror/medikament_erinnerung_nfc.yaml",
+        "input": {
+          "input_datetime": "input_datetime.elvanse",
+          "notify_device": "7aeb40e70e4cc9ccb5a5585f73b0eaab",
+          "nfc_tag": "ee1aefeb-2428-4243-b8cb-a07f767c1a92",
+          "ask_later_wait_time": 5
+        }
+      }
+    },
+    "context": {
+      "id": "01HC0J7E03N08EG95V7GG5JV57",
+      "parent_id": null,
+      "user_id": null
+    }
+  },
+  "logbookEntries": [
+    {
+      "name": "Benachrichtigung - Niclas Medizin mit NFC",
+      "message": "triggered by time set in input_datetime.elvanse",
+      "source": "time set in input_datetime.elvanse",
+      "entity_id": "automation.benachrichtigung_niclas_medizin_mit_nfc",
+      "context_id": "01HC0J7E03N08EG95V7GG5JV57",
+      "when": 1696531200.003404,
+      "domain": "automation"
+    }
+  ]
+}

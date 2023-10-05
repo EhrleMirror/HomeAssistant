@@ -94,6 +94,10 @@ blueprint:
         action: {}
       default: []
 
+variables:
+  # Make input input_datetime available as a script level variable
+  input_datetime: !input input_datetime
+
 trigger:
   - platform: time
     at: !input input_datetime
@@ -186,14 +190,12 @@ action:
                             entity_id: !input "input_datetime"
                         - delay:
                             minutes: !input "ask_later_wait_time"
-                      sequence: []
                     - conditions: "{{ wait.trigger and wait.trigger.event.data.action == 'skip' }}"
                       sequence:
                         - service: input_datetime.set_datetime
                           data:
                             date: >-
-                              {{ (now() +
-                              timedelta(days=1)).strftime('%Y-%m-%d') }}
+                              {{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}
                           target:
                             entity_id: !input input_datetime
                         - service: logbook.log
