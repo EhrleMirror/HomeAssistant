@@ -50,6 +50,50 @@ blueprint:
       default: "Überspringen"
 
 
+    ask_later_wait_time:
+      name: Zeit bis zur Nächsten Benachrichtigung
+      description: Minutes before notify again after a Ask later action.
+      default: 30
+      selector:
+        number:
+          min: 5
+          max: 1440
+          unit_of_measurement: minutes
+          step: 1
+          mode: slider
+
+    logbook_message_remind:
+      name: Logbook message for remind (Optional)
+      description: "Default: Reminder sent"
+      default: "Reminder sent"
+
+    logbook_message_taken:
+      name: Logbook message for action Taken (Optional)
+      description: "Default: Medication taken"
+      default: "Medication taken"
+
+    logbook_message_later:
+      name: Logbook message for action Ask later (Optional)
+      description: "Default: Postpone reminder"
+      default: "Postpone reminder"
+
+    logbook_message_skip:
+      name: Logbook message for action Skip (Optional)
+      description: "Default: Reminder skipped"
+      default: "Reminder skipped"
+
+    logbook_message_no_answer:
+      name: Logbook message for no action after timeout (Optional)
+      description: "Default: No answer time out"
+      default: "No answer time out"
+
+    optional_action:
+      name: Optional action
+      description: Run an action like notify a speaker at the same time that the mobile notification
+      selector:
+        action: {}
+      default: []
+
 trigger:
   - platform: time
     at: !input input_datetime
