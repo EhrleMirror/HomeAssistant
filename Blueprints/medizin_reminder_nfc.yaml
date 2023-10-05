@@ -124,15 +124,13 @@ action:
               - time_trigger
           - condition: template
             value_template: >-
-              {{ as_timestamp(now()) >
-              as_timestamp(states('!input input_datetime'))}}
+              {{ as_timestamp(now()) > as_timestamp(states(input_datetime))}}
         sequence:
           - repeat:
               while:
                 - condition: template
                   value_template: >-
-                    {{ now().timestamp() > state_attr('!input input_datetime',
-                    'timestamp') }}
+                    {{ now().timestamp() > state_attr(input_datetime, 'timestamp') }}
               sequence:
               - service: logbook.log
                 data:
@@ -169,8 +167,7 @@ action:
                         - service: input_datetime.set_datetime
                           data:
                             date: >-
-                              {{ (now() +
-                              timedelta(days=1)).strftime('%Y-%m-%d') }}
+                              {{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}
                           target:
                             entity_id: !input input_datetime
                         - service: logbook.log
