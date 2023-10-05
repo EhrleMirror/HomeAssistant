@@ -1,0 +1,175 @@
+blueprint:
+  name: Medikamenten-Erinnerung (Android)
+  description: Erweiterte Benachrichtigung und Historie für Medikamentenerinnerungen
+  domain: automation
+  input:
+    input_datetime:
+      name: input_datetime Helfer
+      description: Erstelle den Helfer und wähle ihn hier aus.
+      selector:
+        entity:
+          domain: input_datetime
+          multiple: false
+
+    notify_device:
+      name: Notification
+      description: Die HomeAssistant App muss auf dem Gerät installiert und eingerichtet sein.
+      selector:
+        device:
+          integration: mobile_app
+          multiple: false
+
+    nfc_tag:
+      name: NFC Tag ID
+      description:
+        The tag ID of your NFC trigger. Can be found under Settings --> NFC Tags
+        and then click on the NFC Tag you want to choose.
+
+    notification_title:
+      name: Benachrichtigung - Titel (Optional)
+      description: "Default: Medication reminder"
+      default: "Medication reminder!"
+    notification_message:
+      name: Benachrichtigung - Nachricht (Optional)
+      description: "Default: It's time to take your medication"
+      default: "It's time to take your medication"
+
+    notification_action_taken:
+      name: "Benachrichtigung Aktion - Genommen (Optional)"
+      description: "Default: Genommen"
+      default: "Genommen"
+
+    notification_action_later:
+      name: "Benachrichtigung Aktion - Später (Optional)"
+      description: "Default: Später"
+      default: "Später"
+
+    notification_action_skip:
+      name: "Benachrichtigung Aktion - Überspringen (Optional)"
+      description: "Default: Überspringen"
+      default: "Überspringen"
+
+
+trigger:
+  - platform: time
+    at: !input input_datetime
+    id: time_trigger
+  - platform: tag
+    tag_id: !input nfc_tag
+    id: trigger_nfc
+
+mode: restart
+
+action:
+  - alias: Choose depending on trigger
+    choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - trigger_nfc
+        sequence:
+          - alias: set input_datetime to tomorrow
+            service: input_datetime.set_datetime
+            data:
+              date: "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
+            target:
+              entity_id: !input input_datetime
+      - conditions:
+          - condition: trigger
+            id:
+              - time_trigger
+          - condition: template
+            value_template: >-
+              {{ as_timestamp(now()) >
+              as_timestamp(states('!input input_datetime'))}}
+        sequence:
+          - repeat:
+              while:
+                - condition: template
+                  value_template: >-
+                    {{ now().timestamp() > state_attr('!input input_datetime',
+                    'timestamp') }}
+              sequence:
+              - service: logbook.log
+                data:
+                  name: !input notification_title
+                  message: !input logbook_message_remind
+                  entity_id: !input input_datetime
+              - choose:
+                - conditions: "{{ true }}"
+                  sequence: !input optional_action
+              - device_id: !input notify_device
+                domain: mobile_app
+                type: notify
+                title: !input notification_title
+                message: !input notification_message
+                data:
+                  actions:
+                    - title: !input notification_action_taken
+                      action: "taken"
+                    - title: !input notification_action_later
+                      action: "later"
+                    - title: !input notification_action_skip
+                      action: "skip"
+                  tag: !input input_datetime
+              - wait_for_trigger:
+                  platform: event
+                  event_type: mobile_app_notification_action
+                  event_data:
+                    tag: !input input_datetime
+                timeout:
+                  minutes: !input "ask_later_wait_time"
+              - choose:
+                    - conditions: "{{ wait.trigger and wait.trigger.event.data.action == 'taken' }}"
+                      sequence:
+                        - service: input_datetime.set_datetime
+                          data:
+                            date: >-
+                              {{ (now() +
+                              timedelta(days=1)).strftime('%Y-%m-%d') }}
+                          target:
+                            entity_id: !input input_datetime
+                        - service: logbook.log
+                          data:
+                            name: !input "notification_title"
+                            message: !input "logbook_message_taken"
+                            entity_id: !input "input_datetime"
+
+                          alias: set input_datetime to tomorrow
+                    - conditions: "{{ wait.trigger and wait.trigger.event.data.action == 'later' }}"
+                      sequence:
+                        - service: logbook.log
+                          data:
+                            name: !input "notification_title"
+                            message: !input "logbook_message_later"
+                            entity_id: !input "input_datetime"
+                        - delay:
+                            minutes: !input "ask_later_wait_time"
+                      sequence: []
+                    - conditions: "{{ wait.trigger and wait.trigger.event.data.action == 'skip' }}"
+                      sequence:
+                        - service: input_datetime.set_datetime
+                          data:
+                            date: >-
+                              {{ (now() +
+                              timedelta(days=1)).strftime('%Y-%m-%d') }}
+                          target:
+                            entity_id: !input input_datetime
+                        - service: logbook.log
+                          data:
+                            name: !input "notification_title"
+                            message: !input "logbook_message_skip"
+                            entity_id: !input "input_datetime"
+                default:
+                  - device_id: !input "notify_device"
+                    domain: mobile_app
+                    type: notify
+                    message: "clear_notification"
+                    data:
+                      tag: !input input_datetime
+                  - service: logbook.log
+                    data:
+                      name: !input "notification_title"
+                      message: !input "logbook_message_no_answer"
+                      entity_id: !input "input_datetime"
+
