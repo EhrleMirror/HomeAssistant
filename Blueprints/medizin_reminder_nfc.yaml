@@ -87,6 +87,11 @@ blueprint:
       description: "Default: No answer time out"
       default: "No answer time out"
 
+    logbook_message_nfc:
+      name: Logbook message for action NFC Tag Scanned (Optional)
+      description: "Default: Medication taken (NFC)"
+      default: "Medication taken (NFC)"
+
     optional_action:
       name: Optional action
       description: Run an action like notify a speaker at the same time that the mobile notification
@@ -116,12 +121,23 @@ action:
             id:
               - trigger_nfc
         sequence:
+          - service: logbook.log
+            data:
+              name: !input nfc_tag scanned
+              message: !input logbook_message_nfc
+              entity_id: !input input_datetime
           - alias: set input_datetime to tomorrow
             service: input_datetime.set_datetime
             data:
               date: "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
             target:
-              entity_id: !input input_datetime
+              entity_id: !input input_datetime       
+          - device_id: !input "notify_device"
+            domain: mobile_app
+            type: notify
+            message: "clear_notification"
+            data:
+              tag: !input input_datetime
       - conditions:
           - condition: trigger
             id:
