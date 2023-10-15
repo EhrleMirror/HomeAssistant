@@ -215,4 +215,3 @@ action:
                       name: !input "notification_title"
                       message: !input "logbook_message_no_answer"
                       entity_id: !input "input_datetime"
-
