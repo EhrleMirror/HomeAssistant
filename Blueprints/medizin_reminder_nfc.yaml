@@ -29,6 +29,7 @@ blueprint:
       name: Benachrichtigung - Titel (Optional)
       description: "Default: Medication reminder"
       default: "Medication reminder!"
+    
     notification_message:
       name: Benachrichtigung - Nachricht (Optional)
       description: "Default: It's time to take your medication"
@@ -123,7 +124,7 @@ action:
         sequence:
           - service: logbook.log
             data:
-              name: !input nfc_tag scanned
+              name: !input nfc_tag_scanned
               message: !input logbook_message_nfc
               entity_id: !input input_datetime
           - alias: set input_datetime to tomorrow
