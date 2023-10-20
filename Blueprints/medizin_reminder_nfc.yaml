@@ -1,11 +1,13 @@
 blueprint:
-  name: Medikamenten-Erinnerung (Android)
-  description: Erweiterte Benachrichtigung und Historie für Medikamentenerinnerungen
+  name: Tabletten Erinnerung (Android)
+  description: | 
+    ## Benachrichtigung und Historie für Tabletten-Erinnerungen
+    Für eine detallierte Anleitung: [Mein Blog-Post](https://google.com)
   domain: automation
   input:
     input_datetime:
       name: input_datetime Helfer
-      description: Erstelle den Helfer und wähle ihn hier aus.
+      description: Erstelle einen Helfer und wähle ihn hier aus
       selector:
         entity:
           domain: input_datetime
@@ -20,36 +22,34 @@ blueprint:
           multiple: false
 
     nfc_tag:
-      name: NFC Tag ID
+      name: NFC Tag ID (optional)
       description:
-        The tag ID of your NFC trigger. Can be found under Settings --> NFC Tags
-        and then click on the NFC Tag you want to choose.
+        Die Tag-ID des NFC-Tags. Du findest sie unter Einstellungen --> NFC Tags. Dann wählst du deinen NFC Tag aus.
 
     notification_title:
-      name: Benachrichtigung - Titel (Optional)
+      name: Benachrichtigung - Titel (optional)
       description: "Default: Medication reminder"
       default: "Medication reminder!"
     
     notification_message:
-      name: Benachrichtigung - Nachricht (Optional)
+      name: Benachrichtigung - Nachricht (optional)
       description: "Default: It's time to take your medication"
       default: "It's time to take your medication"
 
     notification_action_taken:
-      name: "Benachrichtigung Aktion - Genommen (Optional)"
+      name: "Benachrichtigung Aktion - Genommen (optional)"
       description: "Default: Genommen"
       default: "Genommen"
 
     notification_action_later:
-      name: "Benachrichtigung Aktion - Später (Optional)"
+      name: "Benachrichtigung Aktion - Später (optional)"
       description: "Default: Später"
       default: "Später"
 
     notification_action_skip:
-      name: "Benachrichtigung Aktion - Überspringen (Optional)"
+      name: "Benachrichtigung Aktion - Überspringen (optional)"
       description: "Default: Überspringen"
       default: "Überspringen"
-
 
     ask_later_wait_time:
       name: Zeit bis zur Nächsten Benachrichtigung
@@ -64,32 +64,32 @@ blueprint:
           mode: slider
 
     logbook_message_remind:
-      name: Logbook message for remind (Optional)
+      name: Logbook message for remind (optional)
       description: "Default: Reminder sent"
       default: "Reminder sent"
 
     logbook_message_taken:
-      name: Logbook message for action Taken (Optional)
+      name: Logbook message for action Taken (optional)
       description: "Default: Medication taken"
       default: "Medication taken"
 
     logbook_message_later:
-      name: Logbook message for action Ask later (Optional)
+      name: Logbook message for action Ask later (optional)
       description: "Default: Postpone reminder"
       default: "Postpone reminder"
 
     logbook_message_skip:
-      name: Logbook message for action Skip (Optional)
+      name: Logbook message for action Skip (optional)
       description: "Default: Reminder skipped"
       default: "Reminder skipped"
 
     logbook_message_no_answer:
-      name: Logbook message for no action after timeout (Optional)
+      name: Logbook message for no action after timeout (optional)
       description: "Default: No answer time out"
       default: "No answer time out"
 
     logbook_message_nfc:
-      name: Logbook message for action NFC Tag Scanned (Optional)
+      name: Logbook message for action NFC Tag Scanned (optional)
       description: "Default: Medication taken (NFC)"
       default: "Medication taken (NFC)"
 
