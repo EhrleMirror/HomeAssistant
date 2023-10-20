@@ -1,8 +1,9 @@
 blueprint:
   name: Tabletten Erinnerung (Android)
   description: | 
+    **Die Automation und der Blueprint sind noch WIP**
     ## Benachrichtigung und Historie für Tabletten-Erinnerungen
-    Für eine detallierte Anleitung: [Mein Blog-Post](https://google.com)
+    Für eine detallierte Anleitung: [Mein Blog-Post]()
   domain: automation
   input:
     input_datetime:
