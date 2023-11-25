@@ -127,12 +127,6 @@ action:
             data:
               name: !input nfc_tag
               message: !input logbook_message_nfc
-              entity_id: !input input_datetime
-          - alias: set input_datetime to tomorrow
-            service: input_datetime.set_datetime
-            data:
-              date: "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
-            target:
               entity_id: !input input_datetime       
           - device_id: !input "notify_device"
             domain: mobile_app
@@ -140,6 +134,12 @@ action:
             message: "clear_notification"
             data:
               tag: !input input_datetime
+          - alias: set input_datetime to tomorrow
+            service: input_datetime.set_datetime
+            data:
+              date: "{{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}"
+            target:
+              entity_id: !input input_datetime
       - conditions:
           - condition: trigger
             id:
@@ -175,7 +175,7 @@ action:
                       action: "later"
                     - title: !input notification_action_skip
                       action: "skip"
-                  tag: !input input_datetime
+                  tag: "!input input_datetime"
               - wait_for_trigger:
                   platform: event
                   event_type: mobile_app_notification_action
