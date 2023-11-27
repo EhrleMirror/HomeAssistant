@@ -186,19 +186,24 @@ action:
               - choose:
                     - conditions: "{{ wait.trigger and wait.trigger.event.data.action == 'taken' }}"
                       sequence:
+                        - service: logbook.log
+                          data:
+                            name: !input "notification_title"
+                            message: !input "logbook_message_taken"
+                            entity_id: !input "input_datetime"
+                          alias: set input_datetime to tomorrow
+                        - device_id: !input "notify_device"
+                          domain: mobile_app
+                          type: notify
+                          message: "clear_notification"
+                          data:
+                            tag: !input input_datetime
                         - service: input_datetime.set_datetime
                           data:
                             date: >-
                               {{ (now() + timedelta(days=1)).strftime('%Y-%m-%d') }}
                           target:
                             entity_id: !input input_datetime
-                        - service: logbook.log
-                          data:
-                            name: !input "notification_title"
-                            message: !input "logbook_message_taken"
-                            entity_id: !input "input_datetime"
-
-                          alias: set input_datetime to tomorrow
                     - conditions: "{{ wait.trigger and wait.trigger.event.data.action == 'later' }}"
                       sequence:
                         - service: logbook.log
